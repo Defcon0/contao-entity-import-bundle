@@ -8,6 +8,9 @@
 
 namespace HeimrichHannot\EntityImportBundle\Util;
 
+use Contao\DcaLoader;
+use Contao\System;
+
 class EntityImportUtil
 {
     public function transformFieldMappingSourceValueToSelect($options)
@@ -19,5 +22,14 @@ class EntityImportUtil
         $dca['eval']['includeBlankOption'] = true;
         $dca['eval']['mandatory'] = true;
         $dca['eval']['chosen'] = true;
+    }
+
+    public function getLocalizedFieldName(string $strField, string $strTable): ?string
+    {
+        $loader = new DcaLoader($strTable);
+        $loader->load();
+        System::loadLanguageFile($strTable);
+
+        return $GLOBALS['TL_DCA'][$strTable]['fields'][$strField]['label'][0] ?: $strField;
     }
 }

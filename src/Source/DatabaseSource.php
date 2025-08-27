@@ -8,30 +8,18 @@
 
 namespace HeimrichHannot\EntityImportBundle\Source;
 
+use Contao\Controller;
 use Contao\Database;
+use Contao\DcaLoader;
+use Contao\StringUtil;
 use HeimrichHannot\UtilsBundle\Dca\DcaUtil;
 
 class DatabaseSource extends AbstractSource
 {
-    /**
-     * @var DcaUtil
-     */
-    private $dcaUtil;
-
-    /**
-     * AbstractFileSource constructor.
-     */
-    public function __construct(DcaUtil $dcaUtil)
-    {
-        $this->dcaUtil = $dcaUtil;
-
-        parent::__construct();
-    }
-
     public function getMappedData(array $options = []): array
     {
         $sourceModel = $this->sourceModel;
-        $mapping = \Contao\StringUtil::deserialize($this->sourceModel->fieldMapping, true);
+        $mapping = StringUtil::deserialize($this->sourceModel->fieldMapping, true);
 
         $mapping = $this->adjustMappingForDcMultilingual($mapping);
         $mapping = $this->adjustMappingForChangeLanguage($mapping);
@@ -68,7 +56,8 @@ class DatabaseSource extends AbstractSource
             'skip' => true,
         ];
 
-        $this->dcaUtil->loadDc($table);
+        $loader = new DcaLoader($table);
+        $loader->load();
 
         $dca = $GLOBALS['TL_DCA'][$table];
 

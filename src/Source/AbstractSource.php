@@ -10,6 +10,7 @@ namespace HeimrichHannot\EntityImportBundle\Source;
 
 use Contao\Environment;
 use Contao\Model;
+use Contao\StringUtil;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -103,7 +104,7 @@ abstract class AbstractSource implements SourceInterface
         $client = new Client();
 
         try {
-            $response = $client->request($method, \Contao\StringUtil::decodeEntities($url), $auth);
+            $response = $client->request($method, StringUtil::decodeEntities($url), $auth);
         } catch (RequestException $e) {
             return [
                 'statusCode' => $e->getResponse()->getStatusCode(),

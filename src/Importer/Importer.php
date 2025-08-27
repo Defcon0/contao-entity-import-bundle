@@ -18,6 +18,7 @@ use Contao\File;
 use Contao\Folder;
 use Contao\Message;
 use Contao\Model;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Validator;
 use HeimrichHannot\EntityImportBundle\DataContainer\EntityImportConfigContainer;
@@ -147,7 +148,7 @@ class Importer implements ImporterInterface
 
         $mappedItems = [];
 
-        $mapping = \Contao\StringUtil::deserialize($this->configModel->fieldMapping, true);
+        $mapping = StringUtil::deserialize($this->configModel->fieldMapping, true);
         $mapping = $this->adjustMappingForDcMultilingual($mapping);
         $mapping = $this->adjustMappingForChangeLanguage($mapping);
 
@@ -405,7 +406,7 @@ class Importer implements ImporterInterface
 
             $mode = $this->configModel->importMode;
 
-            $mapping = \Contao\StringUtil::deserialize($this->configModel->fieldMapping, true);
+            $mapping = StringUtil::deserialize($this->configModel->fieldMapping, true);
             $mapping = $this->adjustMappingForDcMultilingual($mapping);
             $mapping = $this->adjustMappingForChangeLanguage($mapping);
 
@@ -413,7 +414,7 @@ class Importer implements ImporterInterface
             $dbItemMapping = [];
 
             if ('merge' === $mode) {
-                $mergeIdentifiers = \Contao\StringUtil::deserialize($this->configModel->mergeIdentifierFields, true);
+                $mergeIdentifiers = StringUtil::deserialize($this->configModel->mergeIdentifierFields, true);
 
                 if (empty(array_filter($mergeIdentifiers))) {
                     throw new Exception($GLOBALS['TL_LANG']['tl_entity_import_config']['error']['noIdentifierFields']);
@@ -634,7 +635,7 @@ class Importer implements ImporterInterface
             return;
         }
 
-        $skipFields = \Contao\StringUtil::deserialize($this->configModel->skipFieldsOnMerge, true);
+        $skipFields = StringUtil::deserialize($this->configModel->skipFieldsOnMerge, true);
 
         foreach ($skipFields as $skipField) {
             if (!\array_key_exists($skipField, $mappingItem)) {
@@ -782,7 +783,7 @@ class Importer implements ImporterInterface
 
         switch ($this->configModel->deletionMode) {
             case EntityImportConfigContainer::DELETION_MODE_MIRROR:
-                $deletionIdentifiers = \Contao\StringUtil::deserialize($this->configModel->deletionIdentifierFields, true);
+                $deletionIdentifiers = StringUtil::deserialize($this->configModel->deletionIdentifierFields, true);
 
                 if (empty($deletionIdentifiers)) {
                     throw new Exception($GLOBALS['TL_LANG']['tl_entity_import_config']['error']['noIdentifierFields']);
@@ -894,7 +895,7 @@ class Importer implements ImporterInterface
     {
         $set = [];
         $slugGenerator = new SlugGenerator();
-        $fileMapping = \Contao\StringUtil::deserialize($this->configModel->fileFieldMapping, true);
+        $fileMapping = StringUtil::deserialize($this->configModel->fileFieldMapping, true);
 
         foreach ($fileMapping as $mapping) {
             if (($record->{$mapping['targetField']} ?? NULL) && $mapping['skipIfExisting']) {

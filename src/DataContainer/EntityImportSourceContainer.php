@@ -13,14 +13,14 @@ use Contao\DataContainer;
 use Contao\Message;
 use Contao\Model;
 use Contao\System;
+use Doctrine\DBAL\Connection;
 use HeimrichHannot\EntityImportBundle\Event\AddSourceFieldMappingPresetsEvent;
 use HeimrichHannot\EntityImportBundle\Source\AbstractFileSource;
 use HeimrichHannot\EntityImportBundle\Source\CSVFileSource;
 use HeimrichHannot\EntityImportBundle\Source\RSSFileSource;
 use HeimrichHannot\EntityImportBundle\Source\SourceFactory;
 use HeimrichHannot\EntityImportBundle\Util\EntityImportUtil;
-use HeimrichHannot\UtilsBundle\Database\DatabaseUtil;
-use HeimrichHannot\UtilsBundle\Model\ModelUtil;
+use HeimrichHannot\UtilsBundle\Util\Utils;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityImportSourceContainer
@@ -59,20 +59,20 @@ class EntityImportSourceContainer
     protected $database;
     protected $cache;
 
-    protected ModelUtil $modelUtil;
-    protected SourceFactory $sourceFactory;
-    protected EntityImportUtil $util;
+    protected SourceFactory            $sourceFactory;
+    protected EntityImportUtil         $util;
     protected EventDispatcherInterface $eventDispatcher;
-    protected DatabaseUtil $databaseUtil;
+    protected Utils                    $utils;
+    protected Connection               $connection;
 
-    public function __construct(SourceFactory $sourceFactory, ModelUtil $modelUtil, EntityImportUtil $util, EventDispatcherInterface $eventDispatcher, DatabaseUtil $databaseUtil)
+    public function __construct(SourceFactory $sourceFactory, EntityImportUtil $util, EventDispatcherInterface $eventDispatcher, Connection $connection, Utils $utils)
     {
         $this->activeBundles = System::getContainer()->getParameter('kernel.bundles');
         $this->sourceFactory = $sourceFactory;
-        $this->modelUtil = $modelUtil;
         $this->util = $util;
         $this->eventDispatcher = $eventDispatcher;
-        $this->databaseUtil = $databaseUtil;
+        $this->utils = $utils;
+        $this->connection = $connection;
     }
 
     public function setPreset(?DataContainer $dc)
@@ -83,15 +83,15 @@ class EntityImportSourceContainer
 
         $dca = &$GLOBALS['TL_DCA']['tl_entity_import_source'];
 
-        $this->databaseUtil->update('tl_entity_import_source', [
+        $this->connection->update('tl_entity_import_source', [
             'fieldMappingPresets' => '',
             'fieldMapping' => serialize($dca['fields']['fieldMappingPresets']['eval']['presets'][$preset]),
-        ], 'tl_entity_import_source.id='.$dc->id);
+        ], ['tl_entity_import_source.id='.$dc->id]);
     }
 
     public function initPalette(?DataContainer $dc)
     {
-        if (null === ($sourceModel = $this->modelUtil->findModelInstanceByPk($dc->table, $dc->id))) {
+        if (null === ($sourceModel = $this->utils->model()->findModelInstanceByPk($dc->table, $dc->id))) {
             return;
         }
 
@@ -193,7 +193,7 @@ class EntityImportSourceContainer
 
     public function onLoadFileContent(?string $value, ?DataContainer $dc)
     {
-        if (null === ($sourceModel = $this->modelUtil->findModelInstanceByPk('tl_entity_import_source', $dc->id))) {
+        if (null === ($sourceModel = $this->utils->model()->findModelInstanceByPk('tl_entity_import_source', $dc->id))) {
             return '';
         }
 
@@ -240,7 +240,7 @@ class EntityImportSourceContainer
 
     public function getAllTargetTables(?DataContainer $dc): array
     {
-        if (null === ($source = $this->modelUtil->findModelInstanceByPk('tl_entity_import_source', $dc->id))) {
+        if (null === ($source = $this->utils->model()->findModelInstanceByPk('tl_entity_import_source', $dc->id))) {
             return [];
         }
 

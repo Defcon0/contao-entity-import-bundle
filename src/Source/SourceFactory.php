@@ -10,28 +10,29 @@ namespace HeimrichHannot\EntityImportBundle\Source;
 
 use Contao\CoreBundle\InsertTag\InsertTagParser;
 use Contao\StringUtil;
+use Contao\System;
 use HeimrichHannot\EntityImportBundle\DataContainer\EntityImportSourceContainer;
 use HeimrichHannot\EntityImportBundle\Event\SourceFactoryCreateSourceEvent;
+use HeimrichHannot\EntityImportBundle\Util\EntityImportUtil;
 use HeimrichHannot\UtilsBundle\Util\Utils;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SourceFactory
 {
-    protected ContainerInterface       $container;
     protected EventDispatcherInterface $eventDispatcher;
     protected Utils                    $utils;
     protected InsertTagParser          $insertTagParser;
+    protected EntityImportUtil         $entityImportUtil;
 
     /**
      * SourceFactory constructor.
      */
-    public function __construct(ContainerInterface $container, EventDispatcherInterface $eventDispatcher, Utils $utils, InsertTagParser $insertTagParser)
+    public function __construct(EventDispatcherInterface $eventDispatcher, Utils $utils, InsertTagParser $insertTagParser, EntityImportUtil $entityImportUtil)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->container = $container;
         $this->utils = $utils;
         $this->insertTagParser = $insertTagParser;
+        $this->entityImportUtil = $entityImportUtil;
     }
 
     public function createInstance(int $sourceModel): ?SourceInterface
@@ -44,7 +45,7 @@ class SourceFactory
 
         switch ($sourceModel->type) {
             case EntityImportSourceContainer::TYPE_DATABASE:
-                $source = new DatabaseSource();
+                $source = new DatabaseSource($this->entityImportUtil);
 
                 break;
 
@@ -87,7 +88,7 @@ class SourceFactory
 
         $source->setFieldMapping(StringUtil::deserialize($sourceModel->fieldMapping, true));
         $source->setSourceModel($sourceModel);
-        $source->setContainer($this->container);
+        $source->setContainer(System::getContainer());
 
         return $source;
     }

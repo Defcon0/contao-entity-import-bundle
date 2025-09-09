@@ -72,7 +72,7 @@ class EntityImportConfigContainer
             return '';
         }
 
-        return '<a href="' . Controller::addToUrl($href . '&amp;id=' . $row['id']) . '&rt=' . \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a> ';
+        return '<a data-turbo="false" href="' . Controller::addToUrl($href . '&amp;id=' . $row['id']) . '&rt=' . \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a> ';
     }
 
     public function setPreset(?DataContainer $dc)
@@ -86,7 +86,7 @@ class EntityImportConfigContainer
         $this->connection->update('tl_entity_import_config', [
             'fieldMappingPresets' => '',
             'fieldMapping'        => serialize($dca['fields']['fieldMappingPresets']['eval']['presets'][$preset]),
-        ], ['tl_entity_import_config.id=' . $dc->id]);
+        ], ['tl_entity_import_config.id' => $dc->id]);
     }
 
     public function initPalette(?DataContainer $dc)
@@ -153,6 +153,8 @@ class EntityImportConfigContainer
             }
         }
 
+        asort($options);
+
         return $options;
     }
 
@@ -177,6 +179,8 @@ class EntityImportConfigContainer
 
             $options[$field['name']] = $field['name'] . ' [' . $field['origtype'] . ']';
         }
+
+        asort($options);
 
         return $options;
     }

@@ -159,7 +159,7 @@ class EntityImportQuickConfigContainer
     public function cacheCsvRows(DataContainer $dc)
     {
         // cache might be invalid now -> delete tl_md_recipient
-        $this->connection->delete('tl_entity_import_cache', ['cache_ptable="tl_entity_import_quick_config" AND cache_pid=' . $dc->id]);
+        $this->connection->delete('tl_entity_import_cache', ['cache_ptable' => 'tl_entity_import_quick_config', 'cache_pid' => $dc->id]);
 
         // cache the rows
         if (null === ($quickImporter = $this->utils->model()->findModelInstanceByPk('tl_entity_import_quick_config', $dc->id)) ||

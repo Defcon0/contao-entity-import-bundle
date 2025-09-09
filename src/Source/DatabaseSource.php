@@ -8,14 +8,23 @@
 
 namespace HeimrichHannot\EntityImportBundle\Source;
 
-use Contao\Controller;
 use Contao\Database;
 use Contao\DcaLoader;
 use Contao\StringUtil;
-use HeimrichHannot\UtilsBundle\Dca\DcaUtil;
+use Doctrine\DBAL\Connection;
+use HeimrichHannot\EntityImportBundle\Util\EntityImportUtil;
 
 class DatabaseSource extends AbstractSource
 {
+    protected EntityImportUtil $util;
+
+    public function __construct(EntityImportUtil $util)
+    {
+        $this->util = $util;
+
+        parent::__construct();
+    }
+
     public function getMappedData(array $options = []): array
     {
         $sourceModel = $this->sourceModel;
@@ -25,15 +34,16 @@ class DatabaseSource extends AbstractSource
         $mapping = $this->adjustMappingForChangeLanguage($mapping);
 
         // retrieve the source records
-        $db = Database::getInstance($sourceModel->row());
         $where = $sourceModel->dbSourceTableWhere ?: '1=1';
 
-        $records = $db->prepare("SELECT * FROM $sourceModel->dbSourceTable WHERE $where")->execute();
+        $connection = $this->util->getDbalConnectionBySource($sourceModel->row());
+
+        $records = $connection->prepare("SELECT * FROM $sourceModel->dbSourceTable WHERE $where")->executeQuery()->fetchAllAssociative();
 
         $data = [];
 
-        while ($records->next()) {
-            $data[] = $this->getMappedItemData($records->row(), $mapping);
+        foreach ($records as $record) {
+            $data[] = $this->getMappedItemData($record, $mapping);
         }
 
         return $data;

@@ -8,7 +8,6 @@
 
 namespace HeimrichHannot\EntityImportBundle\DataContainer;
 
-use Contao\Database;
 use Contao\DataContainer;
 use Contao\Message;
 use Contao\Model;
@@ -86,12 +85,12 @@ class EntityImportSourceContainer
         $this->connection->update('tl_entity_import_source', [
             'fieldMappingPresets' => '',
             'fieldMapping' => serialize($dca['fields']['fieldMappingPresets']['eval']['presets'][$preset]),
-        ], ['tl_entity_import_source.id='.$dc->id]);
+        ], ['tl_entity_import_source.id' => $dc->id]);
     }
 
     public function initPalette(?DataContainer $dc)
     {
-        if (null === ($sourceModel = $this->utils->model()->findModelInstanceByPk($dc->table, $dc->id))) {
+        if (null === ($sourceModel = $this->utils->model()->findModelInstanceByPk($dc->table, $dc->id ?: 0))) {
             return;
         }
 
@@ -105,7 +104,11 @@ class EntityImportSourceContainer
                     $dca['palettes'][static::TYPE_DATABASE] = str_replace('fieldMapping', '', $dca['palettes'][static::TYPE_DATABASE]);
                 } else {
                     try {
-                        $options = array_values(Database::getInstance($sourceModel->row())->getFieldNames($sourceModel->dbSourceTable, true));
+                        $connection = $this->util->getDbalConnectionBySource($sourceModel->row());
+                        $schemaManager = $connection->createSchemaManager();
+
+                        $options = array_keys($schemaManager->listTableColumns($sourceModel->dbSourceTable));
+                        asort($options);
 
                         $this->util->transformFieldMappingSourceValueToSelect(
                             array_combine($options, $options)
@@ -135,6 +138,8 @@ class EntityImportSourceContainer
                             }
                         }
 
+                        asort($options);
+
                         $this->util->transformFieldMappingSourceValueToSelect(
                             $options
                         );
@@ -158,6 +163,8 @@ class EntityImportSourceContainer
                         $source = $this->sourceFactory->createInstance($sourceModel->id);
 
                         $options = $source->getPostFieldsAsOptions();
+
+                        asort($options);
 
                         $this->util->transformFieldMappingSourceValueToSelect(
                             array_combine($options, $options)
@@ -245,7 +252,10 @@ class EntityImportSourceContainer
         }
 
         try {
-            $options = array_values(Database::getInstance($source->row())->listTables(null, true));
+            $connection = $this->util->getDbalConnectionBySource($source->row());
+            $schemaManager = $connection->createSchemaManager();
+
+            $options = array_values($schemaManager->listTableNames());
         } catch (\Exception $e) {
             Message::addError(sprintf($GLOBALS['TL_LANG']['MSC']['entityImport']['dbConnectionError'], $e->getMessage()));
 

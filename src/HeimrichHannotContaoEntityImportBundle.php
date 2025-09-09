@@ -18,4 +18,9 @@ class HeimrichHannotContaoEntityImportBundle extends Bundle
     {
         return new HeimrichHannotEntityImportExtension();
     }
+
+    public function getPath(): string
+    {
+        return \dirname(__DIR__);
+    }
 }

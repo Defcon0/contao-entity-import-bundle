@@ -832,7 +832,7 @@ class Importer implements ImporterInterface
         $table = $this->configModel->targetTable;
         $field = $this->configModel->targetDateAddedField;
 
-        if (!$this->configModel->setDateAdded || !$field || $record->{$field} || !$record->id) {
+        if (!$this->configModel->setDateAdded || !$field || ($record->{$field} ?? false) || !$record->id) {
             return [];
         }
 

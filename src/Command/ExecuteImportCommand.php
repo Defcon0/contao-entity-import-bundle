@@ -82,7 +82,7 @@ class ExecuteImportCommand extends Command
 
         $this->input = $input;
         $this->io    = new SymfonyStyle($input, $output);
-        $this->container->get('contao.framework')->initialize();
+        $this->framework->initialize();
 
         $this->import();
 

@@ -406,13 +406,16 @@ class EntityImportQuickConfigContainer
             $importerConfig->importProgressResult = '';
             $importerConfig->save();
 
-            throw new RedirectResponseException($this->utils->url()->addQueryStringParameterToUrl('act=edit', $this->utils->url()->removeQueryStringParameterFromUrl(['key'])));
+            throw new RedirectResponseException($this->utils->url()->addQueryStringParameterToUrl('act=edit', $this->utils->url()->removeQueryStringParameterFromUrl('key')));
         }
         $importer->setDryRun($dry);
         $result = $importer->run();
         $importer->outputFinalResultMessage($result);
 
-        throw new RedirectResponseException($this->utils->url()->removeQueryStringParameterFromUrl(['key', 'id']));
+        $url = $this->utils->url()->removeQueryStringParameterFromUrl('key');
+        $url = $this->utils->url()->removeQueryStringParameterFromUrl('id', $url);
+
+        throw new RedirectResponseException($url);
     }
 
     /**

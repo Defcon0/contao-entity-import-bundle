@@ -87,7 +87,7 @@ class EntityImportQuickConfigContainer
             }
         }
 
-        return '<a href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue().'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
+        return '<a data-turbo="false" href="'.Controller::addToUrl($href.'&amp;id='.$row['id']).'&rt='.\Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue().'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ';
     }
 
     public function modifyDca(DataContainer $dc)

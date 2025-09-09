@@ -78,7 +78,7 @@ $GLOBALS['TL_DCA']['tl_entity_import_quick_config'] = [
                 'label' => &$GLOBALS['TL_LANG']['tl_entity_import_quick_config']['import'],
                 'href' => 'key=import',
                 'icon' => 'theme_import.svg',
-                'attributes' => 'onclick="if (!confirm(\''.$GLOBALS['TL_LANG']['tl_entity_import_config']['importConfirm'].'\')) return false; Backend.getScrollOffset();"',
+                'attributes' => 'data-turbo="false" onclick="if (!confirm(\''.$GLOBALS['TL_LANG']['tl_entity_import_config']['importConfirm'].'\')) return false; Backend.getScrollOffset();"',
             ],
         ],
     ],

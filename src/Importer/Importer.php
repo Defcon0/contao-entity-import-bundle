@@ -380,10 +380,6 @@ class Importer implements ImporterInterface
 
     protected function executeImport(array $items): array
     {
-        ob_start();
-        echo 111 . "\n";
-        file_put_contents('/var/www/html/debug.txt', ob_get_contents(), FILE_APPEND);
-        ob_end_clean();
         System::loadLanguageFile('default');
         System::loadLanguageFile('tl_entity_import_config');
 
